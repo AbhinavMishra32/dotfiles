@@ -13,6 +13,7 @@ return {
         require("which-key").add({
             { "<leader>b", group = "buffers" },
             { "<leader>s", group = "split" },
+            {"<leader>f", group = "find" },
         })
     end,
 }
