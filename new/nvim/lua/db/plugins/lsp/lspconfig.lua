@@ -78,60 +78,87 @@ return {
       vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
     end
 
-    mason_lspconfig.setup_handlers({
-      -- default handler for installed servers
-      function(server_name)
-        lspconfig[server_name].setup({
-          capabilities = capabilities,
+        mason_lspconfig.setup_handlers({
+            -- default handler for installed servers
+            function(server_name)
+                lspconfig[server_name].setup({
+                    capabilities = capabilities,
+                })
+            end,
+            ["svelte"] = function()
+                -- configure svelte server
+                lspconfig["svelte"].setup({
+                    capabilities = capabilities,
+                    on_attach = function(client, bufnr)
+                        vim.api.nvim_create_autocmd("BufWritePost", {
+                            pattern = { "*.js", "*.ts" },
+                            callback = function(ctx)
+                                -- Here use ctx.match instead of ctx.file
+                                client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
+                            end,
+                        })
+                    end,
+                })
+            end,
+            ["graphql"] = function()
+                -- configure graphql language server
+                lspconfig["graphql"].setup({
+                    capabilities = capabilities,
+                    filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
+                })
+            end,
+            ["emmet_ls"] = function()
+                -- configure emmet language server
+                lspconfig["emmet_ls"].setup({
+                    capabilities = capabilities,
+                    filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
+                })
+            end,
+            ["lua_ls"] = function()
+                -- configure lua server (with special settings)
+                lspconfig["lua_ls"].setup({
+                    capabilities = capabilities,
+                    settings = {
+                        Lua = {
+                            -- make the language server recognize "vim" global
+                            diagnostics = {
+                                globals = { "vim" },
+                            },
+                            completion = {
+                                callSnippet = "Replace",
+                            },
+                        },
+                    },
+                })
+            end,
+            ["clangd"] = function()
+                lspconfig["clangd"].setup({
+                    capabilities = capabilities,
+                    cmd = {
+                        "clangd",
+                        "--background-index",
+                        "--clang-tidy",
+                        "--completion-style=detailed",
+                        "--header-insertion=never", -- or "iwyu"
+                        "--pch-storage=memory",
+                        "--function-arg-placeholders",
+                    },
+                    on_attach = function(client, bufnr)
+                        -- optional: add keybinds or autocmds here
+                    end,
+                })
+            end,
+            ["tsserver"] = function()
+                lspconfig["tsserver"].setup({
+                    capabilities = capabilities,
+                    on_attach = function(client, bufnr)
+                        -- Optional: disable tsserver formatting if you're using prettier or eslint
+                        client.server_capabilities.documentFormattingProvider = false
+                    end,
+                })
+            end,
+
         })
-      end,
-      ["svelte"] = function()
-        -- configure svelte server
-        lspconfig["svelte"].setup({
-          capabilities = capabilities,
-          on_attach = function(client, bufnr)
-            vim.api.nvim_create_autocmd("BufWritePost", {
-              pattern = { "*.js", "*.ts" },
-              callback = function(ctx)
-                -- Here use ctx.match instead of ctx.file
-                client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
-              end,
-            })
-          end,
-        })
-      end,
-      ["graphql"] = function()
-        -- configure graphql language server
-        lspconfig["graphql"].setup({
-          capabilities = capabilities,
-          filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
-        })
-      end,
-      ["emmet_ls"] = function()
-        -- configure emmet language server
-        lspconfig["emmet_ls"].setup({
-          capabilities = capabilities,
-          filetypes = { "html", "typescriptreact", "javascriptreact", "css", "sass", "scss", "less", "svelte" },
-        })
-      end,
-      ["lua_ls"] = function()
-        -- configure lua server (with special settings)
-        lspconfig["lua_ls"].setup({
-          capabilities = capabilities,
-          settings = {
-            Lua = {
-              -- make the language server recognize "vim" global
-              diagnostics = {
-                globals = { "vim" },
-              },
-              completion = {
-                callSnippet = "Replace",
-              },
-            },
-          },
-        })
-      end,
-    })
-  end,
+    end,
 }
 
