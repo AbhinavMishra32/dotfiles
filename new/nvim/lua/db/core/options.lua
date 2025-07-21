@@ -26,7 +26,7 @@ opt.signcolumn = "yes" -- show sign column so that text doesn't shift
 
 -- undo
 opt.backup = false
-opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+opt.undodir = (os.getenv("HOME") or os.getenv("USERPROFILE")) .. "/.vim/undodir"
 opt.undofile = true
 
 -- backspace
