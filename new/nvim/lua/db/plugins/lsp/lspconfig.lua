@@ -1,33 +1,26 @@
 return {
-    "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-        "hrsh7th/cmp-nvim-lsp",
-        { "antosha417/nvim-lsp-file-operations", config = true },
-        { "folke/neodev.nvim", opts = {} },
-    },
-    config = function()
-        -- import lspconfig plugin
-        local lspconfig = require("lspconfig")
+  "neovim/nvim-lspconfig",
+  event = { "BufReadPre", "BufNewFile" },
+  dependencies = {
+    "hrsh7th/cmp-nvim-lsp",
+    { "antosha417/nvim-lsp-file-operations", config = true },
+    { "folke/neodev.nvim", opts = {} },
+  },
+  config = function()
+    -- import lspconfig plugin
+    local lspconfig = require("lspconfig")
 
-        for server, config in pairs(opts.servers) do
-            -- passing config.capabilities to blink.cmp merges with the capabilities in your
-            -- `opts[server].capabilities, if you've defined it
-            config.capabilities = require('blink.cmp').get_lsp_capabilities(config.capabilities)
-            lspconfig[server].setup(config)
-        end
+    -- import mason_lspconfig plugin
+    local mason_lspconfig = require("mason-lspconfig")
 
-        -- import mason_lspconfig plugin
-        local mason_lspconfig = require("mason-lspconfig")
+    -- import cmp-nvim-lsp plugin
+    local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
-        -- import cmp-nvim-lsp plugin
-        local cmp_nvim_lsp = require("cmp_nvim_lsp")
+    local keymap = vim.keymap -- for conciseness
 
-        local keymap = vim.keymap -- for conciseness
-
-        vim.api.nvim_create_autocmd("LspAttach", {
-            group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-            callback = function(ev)
+    vim.api.nvim_create_autocmd("LspAttach", {
+      group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+      callback = function(ev)
         -- Buffer local mappings.
         -- See `:help vim.lsp.*` for documentation on any of the below functions
         local opts = { buffer = ev.buf, silent = true }
@@ -75,7 +68,7 @@ return {
     })
 
     -- used to enable autocompletion (assign to every lsp server config)
-    local capabilities = require('blink.cmp').get_lsp_capabilities();
+    local capabilities = cmp_nvim_lsp.default_capabilities()
 
     -- Change the Diagnostic symbols in the sign column (gutter)
     -- (not in youtube nvim video)
@@ -90,6 +83,21 @@ return {
       function(server_name)
         lspconfig[server_name].setup({
           capabilities = capabilities,
+        })
+      end,
+      ["svelte"] = function()
+        -- configure svelte server
+        lspconfig["svelte"].setup({
+          capabilities = capabilities,
+          on_attach = function(client, bufnr)
+            vim.api.nvim_create_autocmd("BufWritePost", {
+              pattern = { "*.js", "*.ts" },
+              callback = function(ctx)
+                -- Here use ctx.match instead of ctx.file
+                client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
+              end,
+            })
+          end,
         })
       end,
       ["graphql"] = function()
