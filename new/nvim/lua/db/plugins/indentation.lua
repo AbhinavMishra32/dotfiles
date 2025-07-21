@@ -8,7 +8,7 @@ return {
       symbol = "│",
       options = { try_as_border = true },
         draw = {
-            delay = 100,
+            delay = 10,
         }
     },
     init = function()
