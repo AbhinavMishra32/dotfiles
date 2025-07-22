@@ -141,7 +141,7 @@ return {
                         "--completion-style=detailed",
                         "--header-insertion=never", -- or "iwyu"
                         "--pch-storage=memory",
-                        "--function-arg-placeholders",
+                        -- "--function-arg-placeholders",
                     },
                     on_attach = function(client, bufnr)
                         -- optional: add keybinds or autocmds here
