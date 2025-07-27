@@ -22,13 +22,13 @@ keymap.set("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" }) --  
 keymap.set("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" }) --  go to previous tab
 keymap.set("n", "<leader>tf", "<cmd>tabnew %<CR>", { desc = "Open current buffer in new tab" }) --  move current buffer to new tab
 
-keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+keymap.set("v", "J", ":m '>+1<CR>gv=gv", {desc = "Move line below"})
+keymap.set("v", "K", ":m '<-2<CR>gv=gv", {desc = "Move line above"})
 
 
 -- vim.keymap.set('n', '<leader>tP', function()
---   vim.diagnostic.config({ virtual_lines = { current_line = true }, virtual_text = false })
 --
+--   vim.diagnostic.config({ virtual_lines = { current_line = true }, virtual_text = false })
 --   vim.api.nvim_create_autocmd('CursorMoved', {
 --     group = vim.api.nvim_create_augroup('line-diagnostics', { clear = true }),
 --     callback = function()
